@@ -14,7 +14,7 @@ I utilized the kOps tool to deploy and manage a Kubernetes cluster for this proj
 ![p1](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/1abe3869-1003-4e26-9996-6df0729d72c8)
 
 
-To deploy the Nginx application, I generated a manifest file specifying the desired configuration and subsequently apply it to the Kubernetes cluster.
+- To deploy the Nginx application, I created a manifest file specifying the desired configuration and applied it to the Kubernetes cluster.
 
 ```
 sudo cat <<EOF | sudo tee ./nginx-pod.yaml
