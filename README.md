@@ -42,7 +42,7 @@ spec:
 EOF
 ```
 
-Used the `kubectl apply -f nginx-pod.yaml` to run the pod 
+- Used the `kubectl apply -f nginx-pod.yaml` to run the pod 
 
 ![p3](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/27c390cb-f8e6-4db4-a6ba-8567705235e1)
 
@@ -59,6 +59,7 @@ Used the `kubectl apply -f nginx-pod.yaml` to run the pod
 To create a volume within the AWS Elastic Block Storage section, it is necessary to create it in the same availability zone (AZ) as the node responsible for running the Nginx pod. This volume will be subsequently mounted into the Nginx pod, enabling persistent storage for the application.
 
 ![p5](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/30fb0bc5-38e1-4a65-9d2d-4d0df1d56387)
+
 
 ![p6](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/18778d29-4cc2-4e16-b8b5-50d31272100d)
 
