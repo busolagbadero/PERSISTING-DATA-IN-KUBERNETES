@@ -119,7 +119,7 @@ apiVersion: v1
 - With the new deployment manifest, the `/tmp/dare` directory will be persisted, and any data written in there will be sotred permanetly on the volume, which can be used by another Pod if the current one gets replaced.
 
 
-- Another approach is to Create two yaml file PV-Claim.yaml and pv-pod.yaml
+- Create another yaml file for deployment.
 ```
 apiVersion: v1
 kind: Pod
