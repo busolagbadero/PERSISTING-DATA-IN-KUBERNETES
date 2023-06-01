@@ -81,7 +81,86 @@ To create a volume within the AWS Elastic Block Storage section, it is necessary
 
 ## STEP 3: Managing Volumes Dynamically With PV and PVCs
 
-- PVs (Persistent Volumes) are cluster resources, while PVCs (Persistent Volume Claims) serve as requests for those resources and act as claim checks. K0ps alows for the configuration and management of Kubernetes clusters. By default, in a k0ps-managed clusterthere may be a default storageClass defined that enables the dynamic creation of PVs. These PVs, in turn, create volumes that can be utilized by Pods within the cluste
+- PVs (Persistent Volumes) are cluster resources, while PVCs (Persistent Volume Claims) serve as requests for those resources and act as claim checks. K0ps allows for the configuration and management of Kubernetes clusters. By default, in a k0ps-managed cluster there is a default storageClass defined that enables the dynamic creation of PVs. These PVs, in turn, create volumes that can be utilized by Pods within the cluster.
+
+- Verifying that there is a storageClass in the cluster:`$ kubectl get storageclass`
+
+![p14](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/8aa04822-4a00-4dec-996d-988ec4a2fdad)
+
+- Create a manifest file for a PVC, and based on the gp2 storageClass a PV will be dynamically created
+
+```
+apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: nginx-volume-claim
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+      storageClassName: gp2
+```
+
+![p15](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/01985736-340c-4540-9ec2-0adb42bc7f8a)
+
+- Checking the setup:`$ kubectl get pvc`
+
+![p16](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/b5be7d69-2aa4-45f2-b85e-335a7b619b6c)
+
+- Create a yaml file nginx-deployment-with-pvc 
+
+![p18](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/bafc1183-5602-4e65-b191-837fa7acec74)
+
+![p19](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/a26327ff-f857-4168-ad9e-d6ba7e6b582d)
+
+- With the new deployment manifest, the `/tmp/dare` directory will be persisted, and any data written in there will be sotred permanetly on the volume, which can be used by another Pod if the current one gets replaced.
+
+
+- Another approach is to Create two yaml file PV-Claim.yaml and pv-pod.yaml
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: task-pv-pod
+spec:
+  volumes:
+    - name: task-pv-storage
+       persistentVolumeClaim:
+        claimName: task-pv-claim
+
+  containers:
+    - name: task-pv-container
+      image: nginx
+      ports:
+        - containerPort: 80
+          name: "http-server"
+      volumeMounts:
+        - mountPath: "/usr/share/nginx/html"
+          name: task-pv-storage
+```
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: task-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+
+```
+
+![p23](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/0ce184c3-7f51-4dab-85fe-a08bd6541f01)
+
+## STEP 4: Use Of ConfigMap As A Persistent Storage
+
+
+
 
 
 
