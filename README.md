@@ -159,7 +159,110 @@ spec:
 
 ## STEP 4: Use Of ConfigMap As A Persistent Storage
 
+- A ConfigMap in Kubernetes is used to manage configuration files and other non-confidential data as key-value pairs. ConfigMaps are designed to ensure that the configuration data is decoupled from the Pod's definition, allowing for easier configuration management and flexibility. Importantly, ConfigMaps help ensure that the configuration data is not lost when a Pod is replaced or rescheduled.
 
+- To demonstrate this, the HTML file that came with Nginx will be used.
+- Exec into the container and copy the HTML file
+-   cat /usr/share/nginx/html/index.html
+-  Use configMap to create a file in a volume. 
+```
+
+cat <<EOF | tee ./nginx-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: website-index-file
+data:
+  # file to be mounted inside a volume
+  index-file: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>Welcome to Nginx!</title>
+    <style>
+    html { color-scheme: light dark; }
+    body { width: 35em; margin: 0 auto;
+    font-family: Tahoma, Verdana, Arial, sans-serif; }
+    </style>
+    </head>
+    <body>
+    <h1>Welcome to Nginx!</h1>
+    <p>If you see this page, the nginx web server is successfully installed and
+    working. Further configuration is required.</p>
+
+    <p>For online documentation and support please refer to
+    <a href="http://nginx.org/">nginx.org</a>.<br/>
+    Commercial support is available at
+    <a href="http://nginx.com/">nginx.com</a>.</p>
+
+    <p><em>Thank you for using nginx.</em></p>
+    </body>
+    </html>
+EOF
+```
+![p32](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/566db043-229f-45ff-896e-144d3b5a4eb4)
+
+- Updating the deployment file to use the configmap in the volumeMounts section
+```
+cat <<EOF | tee ./nginx-pod-with-cm.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - name: config
+            mountPath: /usr/share/nginx/html
+            readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: website-index-file
+          items:
+          - key: index-file
+            path: index.html
+EOF
+```
+
+- By utilizing a ConfigMap that has been mounted onto the filesystem, the index.html file is no longer ephemeral. This becomes evident when accessing the pod through the `exec` command and listing the contents of the /usr/share/nginx/html directory. The presence of the file in that directory indicates that the index.html content is now sourced from the mounted ConfigMap, ensuring its persistence and availability within the pod.
+
+![p27](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/d65b2ae3-79da-46bb-8613-ee2390cdbd5a)
+
+- Accessing the site will not change anything at this time because the same html file is being loaded through configmap.
+
+- But if you make any change to the content of the html file through the configmap, and restart the pod, all your changes will persist.
+
+- List the available configmaps using command `kubectl get cm`
+
+![p28](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/6eb53142-f112-4b71-b324-fa653713b527)
+
+- Will Edit the configmap manifest file, using this command `kubectl edit cm website-index-file`
+
+![p29](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/4a8cf39c-ea4a-4ddd-a03e-855e677f44b1)
+
+
+- Without restarting the pod, the site should be loaded automatically.
+- Performing the Port forwarding command and accessing it through the browser:
+
+![p31](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/c8c2f412-9a43-4886-a3c9-60a3a45eca4e)
+
+![p30](https://github.com/busolagbadero/PERSISTING-DATA-IN-KUBERNETES/assets/94229949/16374518-9096-4bed-b535-47c4978e3ae8)
 
 
 
